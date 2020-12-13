@@ -1,6 +1,5 @@
 package com.jokesapp.viewmodel
 
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,8 +10,6 @@ import com.jokesapp.service.ChuckNorrisService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.awaitResponse
 
 class MainViewModel : ViewModel() {
@@ -47,7 +44,7 @@ class MainViewModel : ViewModel() {
     }
 
     /*TODO*/
-    fun fetchMovieByText(filter: String) {
+    fun fetchJokeByText(filter: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val res = service.getByText(filter).awaitResponse()
             val body = res.body()!!
@@ -57,9 +54,9 @@ class MainViewModel : ViewModel() {
                     _filter.value = res.body()
                 }
             }
-         /*   if(!body.results.isEmpty()) {
+            /*if(!body.result.isEmpty()) {
                 //TODO Mostrar mensagem de não encontrado
-            }  */
+            }*/
         }
     }
 

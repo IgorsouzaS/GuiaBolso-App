@@ -1,12 +1,9 @@
 package com.jokesapp.service
 
-import com.google.gson.GsonBuilder
 import com.jokesapp.model.Category
 import com.jokesapp.model.Response
 import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 
 class ChuckNorrisService {
