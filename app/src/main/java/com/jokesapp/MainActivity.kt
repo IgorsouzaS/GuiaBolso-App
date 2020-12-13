@@ -2,7 +2,7 @@ package com.jokesapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.jokesapp.ui.main.MainFragment
+import com.jokesapp.view.MainFragment
 
 class MainActivity : AppCompatActivity() {
 
