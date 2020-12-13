@@ -43,7 +43,7 @@ class RvAdapter(private val resultList: ArrayList<Result>) : RecyclerView.Adapte
             url.text = result.url
 
             Picasso.with(itemView.context)
-                .load(result.icon_url)
+                .load(result.iconUrl)
                 .into(iconUrl)
 
             /*itemView.setOnClickListener({

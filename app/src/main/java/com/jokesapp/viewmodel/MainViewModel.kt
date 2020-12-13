@@ -1,5 +1,8 @@
 package com.jokesapp.viewmodel
 
+import android.text.Editable
+import android.text.TextWatcher
+import android.widget.EditText
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.awaitResponse
+import java.util.*
+import kotlin.concurrent.schedule
 
 class MainViewModel : ViewModel() {
 
@@ -60,5 +65,26 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun addSearchTextListener(edtSearch: EditText) {
+        edtSearch.addTextChangedListener(object : TextWatcher {
+            var timer = Timer()
 
+            override fun beforeTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                timer.cancel()
+                val sleep = 1000L
+                timer = Timer()
+                timer.schedule(sleep) {
+                    /*if (s.isNullOrEmpty()) {
+                        fetchRandomJoke()
+                    } else {*/
+                        fetchJokeByText(s.toString())
+                    //}
+                }
+            }
+        })
+    }
 }

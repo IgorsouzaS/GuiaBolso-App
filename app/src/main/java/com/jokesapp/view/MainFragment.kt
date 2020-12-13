@@ -19,7 +19,8 @@ class MainFragment : Fragment() {
     }
 
     private lateinit var viewModel: MainViewModel
-    private val rvAdapterCategories = RvAdapterCategories(arrayListOf())
+    //private val rvAdapterCategories = RvAdapterCategories(arrayListOf())
+    private val rvAdapter = RvAdapter(arrayListOf())
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.main_fragment, container, false)
@@ -31,16 +32,26 @@ class MainFragment : Fragment() {
 
         rv.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = rvAdapterCategories
+            //adapter = rvAdapterCategories
+            adapter = rvAdapter
         }
 
         viewModel.fetchJokes()
 
-        viewModel.responseList.observe(requireActivity(), Observer { jokes ->
+        /*viewModel.responseList.observe(requireActivity(), Observer { jokes ->
             jokes?.let {
                 rvAdapterCategories.update(it)
             }
+        })*/
+
+        viewModel.filter.observe(requireActivity(), Observer { jokes ->
+            jokes?.let {
+                rvAdapter.update(it.result)
+            }
         })
+
+        viewModel.addSearchTextListener(edtSearch)
+
     }
 
 }
