@@ -22,11 +22,9 @@ class RvAdapter(private val resultList: ArrayList<Result>) : RecyclerView.Adapte
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(resultList.get(position))
-        //holder.name.text = resultList.get(position).display_title
-        //holder.rating.text = resultList.get(position).mpaa_rating
     }
 
-    fun update(results: ArrayList<Result>) {
+    fun update(results: List<Result>) {
         resultList.clear()
         resultList.addAll(results)
         notifyDataSetChanged()

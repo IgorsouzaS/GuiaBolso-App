@@ -1,90 +1,68 @@
 package com.jokesapp.viewmodel
 
-import android.text.Editable
-import android.text.TextWatcher
+import android.annotation.SuppressLint
 import android.widget.EditText
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.jakewharton.rxbinding2.widget.RxTextView
 import com.jokesapp.model.Category
-import com.jokesapp.model.Response
+import com.jokesapp.model.Result
 import com.jokesapp.service.ChuckNorrisService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.awaitResponse
-import java.util.*
-import kotlin.concurrent.schedule
+import com.jokesapp.view.RvAdapter
+import com.jokesapp.view.RvAdapterCategories
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 class MainViewModel : ViewModel() {
 
     private val service = ChuckNorrisService()
-    private var _responseList = MutableLiveData<List<Category>>()
-    private var _filter = MutableLiveData<Response>()
+    private var _responseList = mutableListOf<Category>()
+    private var _filterList = mutableListOf<Result>()
 
-    val responseList: LiveData<List<Category>>
+    val responseList: MutableList<Category>
         get() = _responseList
 
-    /*TODO*/
-    val filter: LiveData<Response>
-        get() = _filter
+    val filterList: MutableList<Result>
+        get() = _filterList
 
 
-    fun fetchJokes() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val res = service.getJokesList().awaitResponse()
+    fun fetchJokes(rvAdapterCategories: RvAdapterCategories): Disposable{
 
-            val body = res.body()
-
-            if (res.isSuccessful) {
-                withContext(Dispatchers.Main) {
-                    _responseList.value = body
-                }
-            }
-            if(!body.isNullOrEmpty()) {
-
-            }
-        }
+        return service.getJokesList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    list -> list.forEach({
+                        responseList.add(it)
+                     })
+                    rvAdapterCategories.update(responseList)
+                }, {
+                        e -> e.printStackTrace()
+                })
     }
 
-    /*TODO*/
-    fun fetchJokeByText(filter: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val res = service.getByText(filter).awaitResponse()
-            val body = res.body()!!
-
-            if (res.isSuccessful) {
-                withContext(Dispatchers.Main) {
-                    _filter.value = res.body()
-                }
-            }
-            /*if(!body.result.isEmpty()) {
-                //TODO Mostrar mensagem de não encontrado
-            }*/
-        }
+    fun fetchJokeByText(rvAdapter: RvAdapter, filter: String) : Disposable{
+        return service.getByText(filter)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                    list ->
+                filterList.clear()
+                list.result.forEach({
+                filterList.add(it)
+            })
+                rvAdapter.update(filterList)
+            }, {
+                    e -> e.printStackTrace()
+            })
     }
 
-    fun addSearchTextListener(edtSearch: EditText) {
-        edtSearch.addTextChangedListener(object : TextWatcher {
-            var timer = Timer()
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-
-            override fun afterTextChanged(s: Editable?) {
-                timer.cancel()
-                val sleep = 1000L
-                timer = Timer()
-                timer.schedule(sleep) {
-                    /*if (s.isNullOrEmpty()) {
-                        fetchRandomJoke()
-                    } else {*/
-                        fetchJokeByText(s.toString())
-                    //}
-                }
-            }
-        })
+    @SuppressLint("CheckResult")
+    fun addSearchTextListener(rvAdapter: RvAdapter, edtSearch: EditText) {
+        RxTextView.textChangeEvents(edtSearch)
+            .debounce(1, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { edt -> fetchJokeByText(rvAdapter, edt.view().text.toString()) }
     }
 }
